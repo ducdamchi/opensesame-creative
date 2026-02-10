@@ -12,7 +12,7 @@ import React from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
-function CustomNode({
+function StoryNode({
   data,
 }: {
   data: {
@@ -27,7 +27,7 @@ function CustomNode({
     //   <NodeTooltipContent position={Position.Top}>
     //     Hidden Content
     //   </NodeTooltipContent>
-    <BaseNode className="p-5 max-w-[40rem]">
+    <BaseNode className="p-5 max-w-[40rem] bg-zinc-50">
       <div className="border-b-1 text-lg pb-3 flex justify-between">
         <BaseNodeHeader className="font-extrabold m-0 p-0">
           {data.header}
@@ -69,9 +69,43 @@ function SmallNode() {
   )
 }
 
+function PageTitleNode({
+  data,
+}: {
+  data: {
+    content: string
+  }
+}) {
+  return (
+    <BaseNode className="p-5 max-w-[40rem] bg-zinc-50 border-0">
+      <BaseNodeHeaderTitle className="font-black text-3xl text-center">
+        {data.content}
+      </BaseNodeHeaderTitle>
+    </BaseNode>
+  )
+}
+
+function AnswerNode({
+  data,
+}: {
+  data: {
+    content: string
+  }
+}) {
+  return (
+    <BaseNode className="p-5 max-w-[40rem] bg-zinc-50 border-0">
+      <BaseNodeHeaderTitle className="text-3xl text-center font-light">
+        {data.content}
+      </BaseNodeHeaderTitle>
+    </BaseNode>
+  )
+}
+
 const nodeTypes = {
-  custom: CustomNode,
+  story: StoryNode,
   small: SmallNode,
+  pageTitle: PageTitleNode,
+  answer: AnswerNode,
 }
 
 const initialNodes: Node[] = [
@@ -79,46 +113,59 @@ const initialNodes: Node[] = [
     id: "1",
     position: { x: 100, y: 100 },
     data: {
-      header: "In 2018... ",
-      title:
-        "How do you see OpenSesame fitting into your career journey or long-term goals?",
       content:
-        "In this section, you'll learn about the work I did in the past, what I'm up to in the present, as well as my aspirations for the future!",
+        "How do you see OpenSesame fitting into your career journey or long-term goals?",
     },
-    type: "custom",
+    type: "pageTitle",
   },
   {
     id: "2",
-    position: { x: 600, y: 450 },
+    position: { x: 600, y: 300 },
     data: {
-      header: "Question 2",
-
-      title:
-        "What strengths, skills, or perspectives will you bring to OpenSesame to make an impact and contribute to our mission?",
       content:
-        "In this section, you'll learn about the work I did in the past, what I'm up to in the present, as well as my aspirations for the future!",
+        "From past to present, I've been walking the line that connects Technology & the Humanities, with the drive to curate meaningful learning experiences for others.",
     },
-    type: "custom",
+    type: "answer",
   },
   {
     id: "3",
-    position: { x: 100, y: 850 },
+    position: { x: 600, y: 600 },
     data: {
-      header: "Question 3",
-
-      title:
-        "What excites you most about working with AI, and how do you think it can shape the future of learning and work?",
       content:
-        "In this section, you'll learn about the work I did in the past, what I'm up to in the present, as well as my aspirations for the future!",
+        "As an Ed-Tech company that is currently redefining what it means for business to learn in the age of AI, OpenSesame speaks directly to the passion I have for designing learning spaces through modern software engineering.",
     },
-    type: "custom",
+    type: "answer",
   },
   {
-    id: "1.1",
-    position: { x: 600, y: 450 },
-    data: {},
-    type: "small",
+    id: "4",
+    position: { x: 300, y: 800 },
+    data: {
+      header: "After finishing high school in 2020...",
+      title: "I co-founded MO Education",
+      content:
+        "Our goal was to attract Vietnamese talents and intellectuals from all over the world, and create a hybrid school that offers Liberal Arts courses to students from Vietnam. As Vietnamese students often face the pressure to specialize early, the idea of being able to take a creative course in an area outside of their main studies attracted mass interest.",
+    },
+    type: "story",
   },
+  // {
+  //   id: "3",
+  //   position: { x: 100, y: 850 },
+  //   data: {
+  //     header: "Question 3",
+
+  //     title:
+  //       "What excites you most about working with AI, and how do you think it can shape the future of learning and work?",
+  //     content:
+  //       "In this section, you'll learn about the work I did in the past, what I'm up to in the present, as well as my aspirations for the future!",
+  //   },
+  //   type: "custom",
+  // },
+  // {
+  //   id: "1.1",
+  //   position: { x: 600, y: 450 },
+  //   data: {},
+  //   type: "small",
+  // },
 ]
 
 export default function questionOne() {
