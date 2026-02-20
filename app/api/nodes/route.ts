@@ -34,16 +34,46 @@ export async function POST(request: NextRequest) {
   // console.log("user:", user)
 
   const { nodes, pageName } = await request.json()
-  // console.log("nodes, pageName:", nodes, pageName)
 
-  const { error } = await supabase
+  // Check if a row for this user & page already exists
+  const { data: existing, error: selectError } = await supabase
     .from("node_positions")
-    .update({ nodes: nodes })
+    .select("id")
     .eq("user_id", user?.id)
     .eq("page_name", pageName)
+    .maybeSingle()
 
-  if (error) {
-    // console.log("POST error:", error)
+  if (selectError) {
+    // console.log("SELECT error:", selectError)
+    return NextResponse.json({ message: "SELECT error" })
+  }
+
+  let opError = null
+
+  if (existing) {
+    // Row exists — update it
+    const { error: updateError } = await supabase
+      .from("node_positions")
+      .update({ nodes: nodes })
+      .eq("user_id", user?.id)
+      .eq("page_name", pageName)
+
+    opError = updateError
+  } else {
+    // Row does not exist — insert a new one
+    const { error: insertError } = await supabase
+      .from("node_positions")
+      .insert({
+        user_id: user?.id,
+        page_name: pageName,
+        nodes: nodes,
+      })
+
+    opError = insertError
+  }
+
+  if (opError) {
+    // console.log("POST error:", opError)
     return NextResponse.json({ message: "POST error" })
   } else {
     // console.log("POST success!")

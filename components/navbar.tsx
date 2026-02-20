@@ -33,15 +33,35 @@ export default function Navbar({
             width={200}
             height={20}
           /> */}
-          <span>OpenSesame Creative Project</span>
+          <Link href="/">
+            <span className="text-orange-600">OpenSesame&nbsp;</span>Creative
+            Project
+          </Link>
         </div>
-        <div className="font-mono">Summer 2026 SWE Internship / by Duc Dam</div>
+        <div className="font-mono">
+          Summer 2026 SWE Internship / by{" "}
+          <a
+            className="text-orange-600 hover:underline"
+            href="https://github.com/ducdamchi"
+            target="_blank"
+            rel="noopener noreferrer">
+            Duc Dam
+          </a>
+        </div>
       </div>
-      <div className="flex items-center justify-center gap-5 ">
-        <Link href="/about">About</Link>
-        <Link href="/about">Tools</Link>
-        {showExit && <button onClick={handleLogout}>Exit</button>}
-      </div>
+      {showExit && (
+        <div className="flex items-center justify-center gap-5 ">
+          <Link href="/" className="hover:underline">
+            Home
+          </Link>
+          <Link href="/tools" className="hover:underline">
+            Tools
+          </Link>
+          <button onClick={handleLogout} className="hover:underline">
+            Exit
+          </button>
+        </div>
+      )}
     </div>
   )
 }

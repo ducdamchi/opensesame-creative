@@ -1,7 +1,6 @@
 "use client"
 
 import { Position, ReactFlow, useNodesState, type Node } from "@xyflow/react"
-import { Boxes } from "@/components/ui/boxes"
 import "@xyflow/react/dist/style.css"
 import {
   BaseNode,
@@ -9,15 +8,12 @@ import {
   BaseNodeHeader,
   BaseNodeHeaderTitle,
 } from "@/components/base-node"
-import {
-  NodeTooltip,
-  NodeTooltipContent,
-  NodeTooltipTrigger,
-} from "@/components/node-tooltip"
 import { Button } from "@/components/ui/button"
 import { Clock2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+import FlickeringGrid from "@/components/ui/flickering-grid"
+import { Spinner } from "@/components/ui/spinner"
 
 // Custom node component with tooltip
 function CustomNode({
@@ -89,55 +85,55 @@ const nodeTypes = {
 const initialNodes: Node[] = [
   {
     id: "1",
-    position: { x: 100, y: 100 },
+    position: { x: 200, y: 65 },
     data: {
       header: "Question 1",
-      time: "4 min",
+      time: "3 min",
       title:
         "How do you see OpenSesame fitting into your career journey or long-term goals?",
       content:
-        "In this section, you'll learn about the work I did in the past, what I'm up to in the present, as well as my aspirations for the future!",
+        "In this section, you'll learn about some of my aspirations, which have motivated both my past and present works.",
       url: "/question-1",
       button: "View",
-      img: "/q1.jpeg",
+      img: "https://ghiinqdxtvecsscabqyl.supabase.co/storage/v1/object/sign/opensesame-media/q1.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kMzY0ZThjZC1hOTRjLTQwODktOGI0Ni04MGE2Yzg5MTY4MTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJvcGVuc2VzYW1lLW1lZGlhL3ExLmpwZWciLCJpYXQiOjE3NzE2MDkwNTYsImV4cCI6MTgwMzE0NTA1Nn0.pVQsa8T_8z9LOl0Ko8yggr8s0tOMvOZ6_NPKGX-lVXQ",
     },
     type: "custom",
   },
   {
     id: "2",
-    position: { x: 600, y: 450 },
+    position: { x: 900, y: 300 },
     data: {
       header: "Question 2",
-      time: "2 min",
+      time: "3 min",
       title:
         "What strengths, skills, or perspectives will you bring to OpenSesame to make an impact and contribute to our mission?",
       content:
-        "In this section, you'll learn about the work I did in the past, what I'm up to in the present, as well as my aspirations for the future!",
+        "In this section, you'll get to view some of my strengths, skills, as well as past experiences that defined my perspectives, which I am eager to bring to OpenSesame!",
       url: "/question-2",
       button: "View",
-      img: "/q2.jpeg",
+      img: "https://ghiinqdxtvecsscabqyl.supabase.co/storage/v1/object/sign/opensesame-media/q2.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kMzY0ZThjZC1hOTRjLTQwODktOGI0Ni04MGE2Yzg5MTY4MTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJvcGVuc2VzYW1lLW1lZGlhL3EyLmpwZWciLCJpYXQiOjE3NzE2MDkxMTYsImV4cCI6MTgwMzE0NTExNn0.y8XrXV19NIb6gve9_GIRmexqup_iMjErkxKcjxPeyJE",
     },
     type: "custom",
   },
   {
     id: "3",
-    position: { x: 100, y: 850 },
+    position: { x: 120, y: 880 },
     data: {
       header: "Question 3",
-      time: "1 min",
+      time: "2 min",
       title:
         "What excites you most about working with AI, and how do you think it can shape the future of learning and work?",
       content:
-        "In this section, you'll learn about the work I did in the past, what I'm up to in the present, as well as my aspirations for the future!",
-      url: "/question-3",
+        "In this section, you'll hear my opinions on the potentials of AI, and how it can shape the broader culture of work and learning.",
+      url: "question-3",
       button: "View",
-      img: "/q3.jpeg",
+      img: "https://ghiinqdxtvecsscabqyl.supabase.co/storage/v1/object/sign/opensesame-media/q3.jpeg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9kMzY0ZThjZC1hOTRjLTQwODktOGI0Ni04MGE2Yzg5MTY4MTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJvcGVuc2VzYW1lLW1lZGlhL3EzLmpwZWciLCJpYXQiOjE3NzE2MDkxMzksImV4cCI6MTgwMzE0NTEzOX0.W_P3hTgn8jKgr7MMjg1WAoGo5CRQbDyBxA8VsbEQVbY",
     },
     type: "custom",
   },
   {
     id: "4",
-    position: { x: 100, y: 850 },
+    position: { x: 900, y: 1200 },
     data: {
       header: "Move me around!",
       // time: "Try it out!",
@@ -161,26 +157,45 @@ export default function Home() {
   // Fetch saved nodes from Supabase on mount
   useEffect(() => {
     const loadNodesFromSupabase = async () => {
-      try {
-        const res = await fetch("/api/nodes?page=home")
-        const { nodes: savedNodes } = await res.json()
+      const maxAttempts = 3
+      let attempt = 0
+      let loaded = false
 
-        console.log("Fetched nodes from Supabase:", savedNodes) // ← Add this
+      while (attempt < maxAttempts && !loaded) {
+        attempt += 1
+        try {
+          const res = await fetch("/api/nodes?page=home")
+          const body = await res.json()
+          const savedNodes = body?.nodes
 
-        if (savedNodes && savedNodes.length > 0) {
-          // Use saved positions from Supabase
-          setNodes(savedNodes)
-          // setNodes(initialNodes)
-        } else {
-          // No saved nodes, use defaults
-          setNodes(initialNodes)
+          // If API returned nodes array, use it. Otherwise retry.
+          if (Array.isArray(savedNodes) && savedNodes.length > 0) {
+            // setNodes(savedNodes)
+            setNodes(initialNodes)
+
+            loaded = true
+            break
+          }
+
+          // If body explicitly contains `nodes` but it's empty, don't bail out early —
+          // retry, because a transient auth/session issue can cause `nodes: null`.
+          // We'll only fall back to `initialNodes` after all attempts fail.
+
+          // Otherwise, retry after a short delay
+          await new Promise((r) => setTimeout(r, 200 * attempt))
+        } catch (error) {
+          // network/parse error — retry
+          // eslint-disable-next-line no-console
+          console.warn("Attempt", attempt, "failed to load nodes:", error)
+          await new Promise((r) => setTimeout(r, 200 * attempt))
         }
-      } catch (error) {
-        console.error("Error loading nodes:", error)
-        // Fallback to default nodes on error
-      } finally {
-        setIsLoading(false)
       }
+
+      if (!loaded) {
+        // final fallback
+        setNodes(initialNodes)
+      }
+      setIsLoading(false)
     }
 
     loadNodesFromSupabase()
@@ -189,6 +204,7 @@ export default function Home() {
   // Detect position changes and save with debounce
   useEffect(() => {
     // Clear previous timer
+    // console.log("nodes changed:", nodes)
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current)
     }
@@ -227,6 +243,16 @@ export default function Home() {
 
   return (
     <div className="h-screen w-screen relative overflow-hidden bg-zinc-50 font-sans">
+      <FlickeringGrid className="z-0 absolute" />
+      {isLoading && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-zinc-200/70" />
+          <div className="relative z-10 flex flex-col items-center gap-4">
+            <Spinner className="h-12 w-12 text-black" />
+            <div className="text-black">Loading…</div>
+          </div>
+        </div>
+      )}
       <ReactFlow
         nodes={nodes}
         nodeTypes={nodeTypes}
